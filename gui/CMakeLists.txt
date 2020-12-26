@@ -115,8 +115,10 @@ if(WIN32)
        freetype
        imm32
        png
-       bz2 
+       bz2
        z
+       ssp
+       winmm
     )
   endif()
 endif()
@@ -134,6 +136,7 @@ if(MINGW)
       libpcre2-16-0
       libpng16-16
       libstdc++-6
+      libssp-0
       libwinpthread-1
       Qt5Core
       Qt5Gui
