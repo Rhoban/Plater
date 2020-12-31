@@ -38,6 +38,7 @@ endif()
 add_executable(plater-gui WIN32
   main.cpp
   mainwindow.cpp
+  partslist.cpp
   worker.cpp
   viewer.cpp
   wizard.cpp

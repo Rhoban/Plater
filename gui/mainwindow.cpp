@@ -61,6 +61,17 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+// Get the singleton instance of MainWindow
+MainWindow *MainWindow::instance()
+{
+    foreach (QWidget *w, qApp->topLevelWidgets()) {
+        if (MainWindow* mw = qobject_cast<MainWindow *>(w)) {
+            return mw;
+        }
+    }
+    return nullptr;
+}
+
 void MainWindow::updatePlateEnable()
 {
     if (ui->circularPlate->isChecked()) {
@@ -150,6 +161,13 @@ void MainWindow::wizardNext()
             wizard->setPlateDimension(getPlateWidth(), getPlateHeight());
         }
     }
+}
+
+// Add all parts from the list by invoking wizardNext() for each file.
+void MainWindow::addParts(QStringList stls)
+{
+    this->stls = stls;
+    wizardNext();
 }
 
 bool MainWindow::isCircular()

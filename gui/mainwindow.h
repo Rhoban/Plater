@@ -20,6 +20,8 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    // Get the singleton instance of MainWindow
+    static MainWindow *instance();
 
     void updatePlateEnable();
     void enableAll(bool enable);
@@ -33,6 +35,8 @@ public:
     Q_INVOKABLE
 #endif
     void wizardNext();
+    // Add all parts from the list by invoking wizardNext() for each file.
+    void addParts(QStringList stls);
     bool isCircular();
     float getPlateDiameter();
     float getPlateWidth();

@@ -12,7 +12,8 @@ TEMPLATE = app
 RC_FILE += gui.rc
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
+    mainwindow.cpp \
+    partslist.cpp \
     worker.cpp \
     viewer.cpp \
     wizard.cpp \
@@ -20,6 +21,7 @@ SOURCES += main.cpp\
     about.cpp
 
 HEADERS  += mainwindow.h \
+    partslist.h \
     worker.h \
     viewer.h \
     wizard.h \

@@ -30,7 +30,7 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_4">
         <item>
-         <widget class="QTextEdit" name="parts"/>
+         <widget class="PartsList" name="parts"/>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -458,7 +458,7 @@
      <x>0</x>
      <y>0</y>
      <width>690</width>
-     <height>33</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuAbout">
@@ -538,12 +538,19 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>PartsList</class>
+   <extends>QTextEdit</extends>
+   <header>partslist.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="icons.qrc"/>
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>
