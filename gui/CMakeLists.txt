@@ -101,7 +101,6 @@ if(WIN32)
   target_link_qt_library(plater-gui Qt5EventDispatcherSupport)
   target_link_qt_library(plater-gui Qt5FontDatabaseSupport)
   target_link_qt_library(plater-gui Qt5ThemeSupport)
-  target_link_qt_library(plater-gui Qt5VulkanSupport)
   target_link_qt_library(plater-gui Qt5WindowsUIAutomationSupport)
   # Win32 libraries
   target_link_libraries(plater-gui PRIVATE uxtheme)
