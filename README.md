@@ -71,9 +71,49 @@ Here are the options:
 * `-d delta`, sets the spacing of the brute forcing (see below), default `2`mm
 * `-r rotation`, sets the angle of the brute forcing, default `90`°
 * `-p`, will output .ppm files instead of STLs
+* `-m`, will output a single `.3mf` file containing every plate instead of one
+  STL per plate, using the OrcaSlicer / BambuStudio multi-plate project layout.
+  Each placed part becomes its own object named after the original part file, and
+  every plate becomes a separate plate in the slicer (plate membership is stored
+  in `Metadata/model_settings.config`, and a `Metadata/project_settings.config`
+  declares the bed). Plates are arranged on the slicer's plate grid, so set
+  `-W`/`-H` to match your printer's bed for the grid to line up. The output file
+  name is derived from `-o` with any `%`-placeholder stripped (e.g. the default
+  `plate_%03d` produces `plate.3mf`).
+
+  **Open this file in OrcaSlicer with File > Open Project (or double-click it) —
+  not File > Import.** Orca only restores the separate plates when opening it as
+  a project; importing loads the geometry onto a single plate. The file declares
+  a plain rectangular bed matching `-W`/`-H`, so re-select your printer preset
+  before slicing if you need its specific settings.
 * `-o pattern`, sets the pattern of output files, default is `plate_%03d`, this
   means that the first plate will be named plate_001.stl, the second plate_002.stl
   and so on.
+
+## Fit search (ideal plate size)
+
+Instead of placing on a single fixed plate size, Plater can search for the
+smallest plate that still fits your parts in as few plates as possible. In this
+mode `-W`/`-H` are the *physical maximum* plate size (your bed), and you give an
+*ideal* (smallest preferred) size to start from:
+
+* `-i ideal`, the ideal/smallest plate size, in mm. Setting this enables the fit
+  search. Plater starts at this size and grows toward `-W`/`-H`.
+* `-g step`, the growth increment, in mm (default `10`).
+* `-N plates`, the number of plates to target first (default `1`).
+
+The search grows the plate size from the ideal up to the bed size in `-g` steps,
+and stops at the smallest size that fits the parts in `-N` plates (or fewer). If
+even the full bed size cannot fit them in `-N` plates, it uses one more plate and
+keeps the smallest size that achieves that fewest-plates result.
+
+For example, with a 300x300 bed but a preferred 250x250 area:
+
+    plater -W 300 -H 300 -i 250 -g 5 -m -o job project.conf
+
+This tries 250, 255, ... up to 300 on a single plate; if nothing fits on one
+plate it moves to two plates (again preferring the smallest size), and so on.
+The chosen size is what feeds the 3MF plate grid, so combine it freely with `-m`.
 
 # The plater.conf file
 

@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <iostream>
 #include <math.h>
+#include <vector>
+#include <cstdint>
 #include "util.h"
 
 using namespace std;
@@ -34,6 +36,7 @@ namespace Plater
             {
                 if (!(data == NULL || x < 0 || y < 0 || x >= width || y >= height)) {
                     data[BMP_POSITION(x,y)] = value;
+                    maskValid = false;
                     if (value) {
                         sX += x;
                         sY += y;
@@ -45,9 +48,16 @@ namespace Plater
             void dilatation(int iterations);
 
             /**
-             * Tests if this bitmap overlaps another one at a given offset
+             * Tests if this bitmap overlaps another one at a given offset.
+             * Uses a bit-packed mask (64 pixels per word) for speed.
              */
             bool overlaps(const Bitmap *other, int offx, int offy);
+
+            /**
+             * Reference (scalar) overlap test, kept for validation and
+             * benchmarking against the bit-packed path.
+             */
+            bool overlapsScalar(const Bitmap *other, int offx, int offy) const;
 
             /**
              * Write all the pixel of another bitmap into this one at a certain
@@ -74,9 +84,19 @@ namespace Plater
             // Center of the sprite
             float centerX, centerY;
 
+            // Build the packed mask now if it is stale (lazy, const-safe).
+            void ensureMask() const;
+
         protected:
             // Image pixels
             unsigned char *data;
+
+            // Bit-packed occupancy mask: one bit per pixel (set if non-zero),
+            // row-major with maskWords 64-bit words per row. Rebuilt lazily and
+            // invalidated whenever a pixel is written (see setPoint).
+            mutable std::vector<uint64_t> mask;
+            mutable int maskWords;
+            mutable bool maskValid;
     };
 }
 

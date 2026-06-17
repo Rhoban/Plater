@@ -1,6 +1,7 @@
 #ifndef _PLATER_PLATE_H
 #define _PLATER_PLATE_H
 
+#include <vector>
 #include "Part.h"
 #include "PlacedPart.h"
 
@@ -26,6 +27,10 @@ namespace Plater
             float precision;
             Bitmap *bmp;
             vector<PlacedPart*> parts;
+
+            // Per-column occupied height (in pixels), for skyline placement.
+            // Populated for rectangular plates only; empty otherwise.
+            std::vector<int> colHeight;
     };
 }
 

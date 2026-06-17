@@ -26,6 +26,9 @@ namespace Plater
                     }
                 }
             }
+        } else {
+            // Skyline starts flat on an empty rectangular bed.
+            colHeight.assign(bmp->width, 0);
         }
     }
             
@@ -71,7 +74,31 @@ namespace Plater
     void Plate::place(PlacedPart *placedPart)
     {
         parts.push_back(placedPart);
-        bmp->write(placedPart->getBmp(), placedPart->getX()/precision, placedPart->getY()/precision);
+        int offX = placedPart->getX()/precision;
+        int offY = placedPart->getY()/precision;
+        Bitmap *pb = placedPart->getBmp();
+        bmp->write(pb, offX, offY);
+
+        // Raise the skyline over the columns this part occupies.
+        if (!colHeight.empty() && pb != NULL) {
+            for (int px=0; px<pb->width; px++) {
+                int maxPy = -1;
+                for (int py=0; py<pb->height; py++) {
+                    if (pb->getPoint(px, py)) {
+                        maxPy = py;
+                    }
+                }
+                if (maxPy >= 0) {
+                    int col = offX + px;
+                    if (col >= 0 && col < (int)colHeight.size()) {
+                        int h = offY + maxPy + 1;
+                        if (h > colHeight[col]) {
+                            colHeight[col] = h;
+                        }
+                    }
+                }
+            }
+        }
     }
             
     int Plate::countParts()

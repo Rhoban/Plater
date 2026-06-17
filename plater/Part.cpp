@@ -8,16 +8,22 @@ using namespace std;
 namespace Plater
 {
     Part::Part()
-        : bmp(NULL)
+        : bmp(NULL), allBmp(NULL)
     {
     }
 
     Part::~Part()
     {
-        if (bmp != NULL) {
+        // allBmp owns the bitmaps; bmp only holds (aliased) views into it.
+        if (allBmp != NULL) {
             for (int i=0; i<bmps; i++) {
-                delete bmp[i];
+                if (allBmp[i] != NULL) {
+                    delete allBmp[i];
+                }
             }
+            delete[] allBmp;
+        }
+        if (bmp != NULL) {
             delete[] bmp;
         }
     }
@@ -30,33 +36,41 @@ namespace Plater
         bmps = ceil((M_PI*2)/deltaR);
         filename = filename_;
 
+        // Size-independent geometry work (disk read, pixelize, rotate, trim):
+        // done once. allBmp keeps every rotation; the per-plate-size filtering
+        // lives in applyPlateSize so a fit search can re-filter cheaply.
         model = loadModelFromFile(filename.c_str());
         model = model.putFaceOnPlate(orientation);
+        allBmp = new Bitmap*[bmps];
         bmp = new Bitmap*[bmps];
-        bmp[0] = model.pixelize(precision, spacing);
-        surface = 0;
+        allBmp[0] = model.pixelize(precision, spacing);
 
         Point3 minP = model.min();
         Point3 maxP = model.max();
         width = maxP.x-minP.x + 2*spacing;
         height = maxP.y-minP.y + 2*spacing;
+
+        for (int k=1; k<bmps; k++) {
+            Bitmap *rotated = Bitmap::rotate(allBmp[0], k*deltaR);
+            allBmp[k] = Bitmap::trim(rotated);
+            delete rotated;
+        }
+
+        return applyPlateSize(plateWidth, plateHeight);
+    }
+
+    int Part::applyPlateSize(float plateWidth, float plateHeight)
+    {
+        surface = 0;
         int correct = 0;
 
         for (int k=0; k<bmps; k++) {
-            if (k > 0) {
-                Bitmap *rotated = Bitmap::rotate(bmp[0], k*deltaR);
-                bmp[k] = Bitmap::trim(rotated);
-                delete rotated;
-            }
-        }
-
-        for (int k=0; k<bmps; k++) {
-            // Will this fit on the plate ?
-            if (bmp[k]->width*precision < plateWidth && bmp[k]->height*precision < plateHeight) {
-                surface += bmp[k]->width * bmp[k]->height;
+            // Will this rotation fit on the plate ?
+            if (allBmp[k]->width*precision < plateWidth && allBmp[k]->height*precision < plateHeight) {
+                bmp[k] = allBmp[k];
+                surface += allBmp[k]->width * allBmp[k]->height;
                 correct++;
             } else {
-                delete bmp[k];
                 bmp[k] = NULL;
             }
         }

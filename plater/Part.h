@@ -15,6 +15,10 @@ namespace Plater
 
             int load(std::string filename, float precision, float deltaR, float spacing, string orientation,
                 float plateWidth, float plateHeight);
+            // Recompute which rotations fit on a plate of the given size and the
+            // average surface, without reloading/re-pixelizing the geometry.
+            // Returns the number of usable rotations (0 means it doesn't fit).
+            int applyPlateSize(float plateWidth, float plateHeight);
             std::string getFilename();
 
             Model model;
@@ -31,8 +35,12 @@ namespace Plater
             float surface;
 
             int bmps;
+            // Per-rotation bitmap "view": points into allBmp for rotations that
+            // fit the current plate size, or NULL for those that don't.
             Bitmap **bmp;
-        
+            // Owns every rotation bitmap (size-independent); never filtered.
+            Bitmap **allBmp;
+
         protected:
             std::string filename;
     };

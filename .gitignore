@@ -6,3 +6,5 @@ gui/Plater
 **.o
 **.swp
 build
+.DS_Store
+**/.DS_Store
